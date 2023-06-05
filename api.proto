@@ -1,0 +1,84 @@
+syntax = "proto3";
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+
+// MdeApiService is the primary routes for MDE to use when integrating with 
+// Tanium.
+service MdeApiService {
+
+  // NewRemediation sends a new remediation request to Tanium from MDE.
+  rpc NewRemediation(NewRemediationRequest) returns (NewRemediationResponse) {
+    option (google.api.http) = {
+      post : "/v1/remediation",
+      body : "*"
+    };
+  }
+
+}
+
+// NewRemediationsRequest describes a new remediation task that Tanium
+// should resolve. 
+message NewRemediationRequest {
+    // remediation describes the task that MDE wants Tanium to do.
+    Remediation remediation = 1;
+}
+
+// NewRemediationResponse describes if Tanium can resolve the rememdiation 
+// task.
+message NewRemediationResponse {
+    // status is a description of the request of a new remediation task. 
+    NewRemediationStatus status = 1;
+}
+
+// NewRemediationStatus describes the status of a new remediation request.
+enum NewRemediationStatus {
+    // Status is indeterminate.
+    NEW_REMEDIATION_STATUS_UNSPECIFIED = 0;
+    // Tanium cannot do the requested task. 
+    NEW_REMEDIATION_STATUS_FAILURE = 1; 
+    // The new Remediation task is accepted.
+    NEW_REMEDIATION_STATUS_SUCCESS = 2; 
+}
+
+// Remediation describes a single remediation object. 
+// This is a subset of the fields in the object shown at the below link.
+// https://learn.microsoft.com/en-us/microsoft-365/security/defender-endpoint/get-remediation-one-activity
+message Remediation {
+    // id is the guid of the remediation.
+    string id = 1;
+    // title is the title of the remediation.
+    string title = 2;
+    // created_on is the UTC time of when the remediation was requested.
+    google.protobuf.Timestamp created_on = 3;
+    // requester_id is the id of the user that requested the remediation.
+    string requester_id = 4;
+    // requester_email is the email of the user that requested the remediation.
+    string requester_email = 5;
+    // status is the status of the user that requested the remediation.
+    string status = 6;
+    // status_last_modified_on is the UTC time of when the status was last changed.
+    google.protobuf.Timestamp status_last_modified_on = 7;
+    // description is the instructions on how to fix the issue.
+    string description = 8;
+    // related_component is the component that is problematic.
+    string related_component = 9;
+    // target_devices is the number of devices affected.
+    int64 target_devices = 10;
+    // due_on is the time of when the requester wants this remediation completed.
+    google.protobuf.Timestamp due_on = 11;
+    // category is the category of the remediation.
+    string category = 12;
+    // priority is the priority of the remediation.
+    string priority = 13;
+    // type is the type of the remediation.
+    string type = 14;
+    // recommendation_reference is the id of the recommendation that this remediation was created from.
+    string recommendation_reference = 15;
+    // name_id is the name of the software that needs updated if applicable.
+    string name_id = 16;
+    // product_id is the product id if applicable.
+    string product_id = 17;
+    // vendor_id is the vendor name if applicable.
+    string vendor_id = 18;
+}
